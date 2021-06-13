@@ -1,42 +1,29 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 
-public class CS_Proxy {
 
-    ServerSocket serverSocket;
-    //Socket s;
-    Socket c;
-    private BufferedReader in;
-    private PrintWriter out;
 
-    CS_Proxy(InetAddress addr, int portNum) throws IOException{
-
-            c = new Socket(addr, portNum);
-            in = new BufferedReader(new InputStreamReader(c.getInputStream()));
-            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(c.getOutputStream())), true);
-
+class CS_Server {
+    public String addr;
+    String nome;
+    String data;
+    CS_Server(){
     }
 
-    public String trovaDato(String nome) {
-        out.println("trovaDato " + nome);  //il registro quando legge questa stringa deve trovare il cs con il dato punto 3
-        String risultato = "";
-        try {
-            risultato = in.readLine();
-        } catch (IOException e) {
-            System.out.println("si è inculato l' IO");
-        }
-        return risultato;
+    public void start() {
+        System.out.println("Starting server");
+
+    }
+}
+
+class CS_Client {
+    String nome;
+    String data;
+    CS_Client(String addr){
+        data=addr;
     }
 
-    public void notificaServer(String nome, String addr){
-        out.println("memorizzaDato " + nome + " " + addr);
+    public void connect() {
     }
 
+    public void sendInfo(Object addr) {
+    }
 }
