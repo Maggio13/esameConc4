@@ -1,8 +1,9 @@
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 class CS_Server extends Thread {
     public int error = 0;
@@ -64,14 +65,71 @@ class CS_Server extends Thread {
 
     public void close() {
         listening = false;
-        System.out.println("SERVEadsadsR: closing");
-
     }
 }
 
 
-class CS_Server_Thread {
-    public CS_Server_Thread(Socket socket)  throws IOException{
+class CS_Server_Thread extends Thread{
+    private Socket socket;
+    private BufferedReader in;
+    private PrintWriter out;
+
+    public CS_Server_Thread(Socket s)  throws IOException {
+        socket = s;
+
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+        start();
+
+    }
+    public void run() {
+        System.out.println("SERVER: accept connection");
+        try {
+            String incomingText = "";
+            while (incomingText != null && !incomingText.equals("disconnect")) {
+                incomingText = in.readLine();
+                parseComando(incomingText);
+            }
+
+        } catch (IOException e) {
+            System.out.println("SERVER: client error");
+        }
+
+        try {
+            socket.close();
+        } catch (IOException e) {
+            System.err.println("Socket not closed");
+        }
+        System.out.println("SERVER: closing connection");
+    }
+
+
+
+
+    public void parseComando(String riga) {
+        String[] linea;
+
+        if (riga != null && riga.length() > 2) {
+            linea = riga.split(" ");
+
+            if (linea.length >= 2) {
+                System.out.println("> " + linea[0] + ", " + linea[1]);
+
+                switch (linea[0]){
+                    case "copiaDato":
+                        copiaDato(linea[1]);
+                        break;
+                }
+            }
+        }
+    }
+
+
+    public void copiaDato(String name){
+        String dataContent = "";
+        dataContent = CS.dati.get(0).data;
+        out.println(dataContent);
+
     }
 }
 

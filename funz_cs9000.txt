@@ -1,0 +1,6 @@
+create datoA
+create datoM
+create datoB
+create datoW
+create datoS
+create datoC
