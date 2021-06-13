@@ -21,9 +21,14 @@ class RegistryData{
 public class Registro extends Thread {
     static ArrayList<RegistryData> registro = new ArrayList<RegistryData>();
 
+
     private Socket socket;
     private static BufferedReader in;
     private static PrintWriter out;
+
+    private static String remoteAddr;
+
+    private static boolean connected;
 
 
     public Registro(Socket s) throws IOException {
@@ -31,66 +36,83 @@ public class Registro extends Thread {
 
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+        connected = true;
         start();
     }
 
     public void run() {
+        System.out.println("Server accepts connection");
         try {
-            while (true) {
+            while (connected) {
                 String str = in.readLine();
                 System.out.println("Received: " + str);
                 parseComando(str);
+                System.out.println(Arrays.asList(Registro.registro));
+                System.out.println();
             }
 
         } catch (IOException e) {
             System.out.println("Client disconnesso");
         } finally {
+            disconnettiCS();
             try {
                 socket.close();
-                System.out.println(Arrays.asList(Registro.registro));
-
             } catch (IOException e) {
                 System.err.println("Socket not closed");
             }
         }
+        System.out.println("Connection Ended");
     }
 
     public static void parseComando(String riga) {
         String[] linea;
-        linea = riga.split(" ");
+        if (riga != null && riga.length() > 2) {
 
-        System.out.println(linea[0] + ", " + linea[1]);
+            linea = riga.split(" ");
 
-        if (linea.length >= 2) {
-            if (linea[0].equals("trovaDato")) {
-                trovaDato(linea[1]);
-            } else if (linea[0].equals("memorizzaDato")) {
-                memorizzaDato(linea[1], linea[2]);
-            } else if (linea[0].equals("cancellaDato")) {
-                cancellaDato(linea[1]);
+            if (linea.length >= 2) {
+                System.out.println(linea[0] + ", " + linea[1]);
+
+                if (linea[0].equals("connetti")) {
+                    connettiCS(linea[1]);
+                }else if (linea[0].equals("trovaDato")) {
+                    trovaDato(linea[1]);
+                } else if (linea[0].equals("memorizzaDato")) {
+                    memorizzaDato(linea[1]);
+                } else if (linea[0].equals("disconnetti")) {
+                    disconnettiCS();
+                }
             }
         }
     }
+
+
 
     /*******************METODI LOCALI********************************/
-    public static void memorizzaDato(String nome, String cs) {
-        System.out.println("REGISTRA DATO "+nome+" "+ cs);
-        registro.add(new RegistryData( nome, cs));
+    public synchronized static void memorizzaDato(String nome) {
+        System.out.println("REGISTRA DATO "+nome+" "+ remoteAddr);
+        registro.add(new RegistryData( nome, remoteAddr));
     }
 
-    public static void cancellaDato(String addr) {
-        for (RegistryData data : registro) {
-            if (data.addr.equals(addr)) {
-                registro.remove(data);
-            }
-        }
+    private static void connettiCS(String addr) {
+        remoteAddr = addr;
     }
 
-    public static void trovaDato(String nome) {
+    public synchronized static void disconnettiCS() {
+        System.out.println("RIMUOVENDO DATI CS");
+        connected = false;
+        rimuoviCS(remoteAddr);
+    }
+
+    public synchronized static void rimuoviCS(String addr) {
+        registro.removeIf(data -> data.addr.equals(addr));
+    }
+
+    public synchronized static void trovaDato(String nome) {
         for (RegistryData data : registro) {
             if (data.nome.equals(nome)) {
                 System.out.println("TROVATO DATO " + data);
-                out.println(data);
+                out.println(data.addr);
             }
         }
         System.out.println("DATO NON TROVATO " );

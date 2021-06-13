@@ -8,7 +8,7 @@ import java.util.concurrent.BlockingQueue;
 
 public class MultiRegistro {
 
-    static final int PORT = 8080;
+    static final int PORT = 8085;
 
     public static void main(String[] args) throws IOException {
 
@@ -17,7 +17,6 @@ public class MultiRegistro {
         try {
             while (true) {
                 Socket socket = s.accept();
-                System.out.println("Server accepts connection");
                 try {
                     new Registro(socket);
                 } catch (IOException e) {

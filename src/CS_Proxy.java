@@ -30,13 +30,23 @@ public class CS_Proxy {
         try {
             risultato = in.readLine();
         } catch (IOException e) {
-            System.out.println("si è inculato l' IO");
+            System.out.println("errore di IO");
         }
         return risultato;
     }
 
-    public void notificaServer(String nome, String addr){
-        out.println("memorizzaDato " + nome + " " + addr);
+    public void notificaServer(String nome){
+        out.println("memorizzaDato " + nome);
     }
 
+    public void connetti(String addr) {
+        out.println("connetti " + addr);
+    }
+
+    public void disconnetti() {
+        out.println("disconnetti " + 0);
+        try {
+            c.close();
+        } catch (IOException e) { }
+    }
 }
