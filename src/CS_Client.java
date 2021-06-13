@@ -12,12 +12,12 @@ class CS_Client {
     private BufferedReader in;
     private PrintWriter out;
 
-
     CS_Client(String addr, int port){
-        remoteAddress=addr;
-        remotePort = port;
+        remoteAddress = addr;
+        remotePort    = port;
     }
 
+    /***********METODI DI CONNESSIONE****************/
     public void connect() throws IOException{
         System.out.println("CLIENT : connecting to " + remoteAddress+":"+remotePort);
 
@@ -31,29 +31,6 @@ class CS_Client {
         }
         System.out.println("CLIENT : Success!");
     }
-
-    public void sendInfo(String addr, int port) {
-        out.println("connetti " + addr+":"+port);
-        System.out.println("connetti " + addr+":"+port);
-    }
-    public void creaDato(String nome) {
-        out.println("creaDato " + nome);
-        System.out.println("creaDato " + nome);
-    }
-    public String trovaDato(String nome) {
-        out.println("trovaDato " + nome);
-        System.out.println("trovaDato " + nome);
-
-        try {
-            String asd = in.readLine();
-            System.out.println(asd);
-
-            return asd;
-        } catch (IOException e) {
-            System.out.println("CLIENT: network error");
-        }
-        return null;
-    }
     public void close() {
         System.out.println("CLIENT: closing");
 
@@ -61,5 +38,42 @@ class CS_Client {
         try {
             c.close();
         } catch (IOException e) { }
+    }
+
+
+    /***********METODI VERSO REGISTRO****************/
+    public void sendInfo(String addr, int port) {
+        out.println("connetti " + addr+":"+port);
+        System.out.println("> connetti " + addr+":"+port);
+    }
+    public void creaDato(String nome) {
+        out.println("creaDato " + nome);
+        System.out.println("> creaDato " + nome);
+    }
+    public String trovaDato(String nome) {
+        out.println("trovaDato " + nome);
+        System.out.println("> trovaDato " + nome);
+
+        String txt = "error";
+        try {
+            txt = in.readLine();
+            System.out.println("< " + txt);
+
+        } catch (IOException e) {
+            System.out.println("CLIENT: network error");
+        }
+        return txt;
+    }
+
+
+    /***********METODI VERSO CS**********************/
+    public String copiaDato(String nome) throws IOException{
+        out.println("copiaDato " + nome);
+        System.out.println("> copiaDato " + nome);
+
+        String txt = in.readLine();
+        System.out.println("< " + txt);
+        return txt;
+
     }
 }

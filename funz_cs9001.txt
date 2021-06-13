@@ -1,0 +1,6 @@
+download datoA
+download datoM
+create datoB
+create datoW
+create datoS
+create datoC

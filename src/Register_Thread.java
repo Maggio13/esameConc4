@@ -92,7 +92,7 @@ class Register_Thread extends Thread {
         for (RegisterData data : registro) {
             if (data.nome.equals(nome)) {
                 System.out.println("TROVATO DATO " + data);
-                //out.println(data.addr);
+                out.println(data.addr);
                 return;
             }
         }
