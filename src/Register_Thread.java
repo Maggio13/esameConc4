@@ -7,63 +7,63 @@ class Register_Thread extends Thread {
     static ArrayList<RegisterData> registro = new ArrayList<RegisterData>();
 
     private Socket socket;
-    private static BufferedReader   in;
-    private static PrintWriter      out;
+    private BufferedReader   in;
+    private PrintWriter      out;
 
-    private static boolean connected;
-    private static String remoteAddr;
-
+    private String remoteAddr;
 
     public Register_Thread(Socket s)  throws IOException {
         socket = s;
 
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-        connected = true;
         start();
 
     }
     public void run() {
         System.out.println("REGISTER: accept connection");
         try {
-            while (connected) {
-                String str = in.readLine();
-                System.out.println("Received: " + str);
-                parseComando(str);
+            String incomingText = "";
+            while (incomingText != null && !incomingText.equals("disconnect")) {
+                incomingText = in.readLine();
+                parseComando(incomingText);
                 System.out.println(Arrays.asList(Register_Thread.registro));
                 System.out.println();
-            }
+             }
 
         } catch (IOException e) {
-            System.out.println("Client disconnesso");
-        } finally {
-            disconnettiCS();
-            try {
+            System.out.println("REGISTER: client error");
+        }
+
+        disconnettiCS();
+        try {
                 socket.close();
             } catch (IOException e) {
                 System.err.println("Socket not closed");
             }
-        }
-        System.out.println("Connection Ended");
+        System.out.println(Arrays.asList(Register_Thread.registro));
+        System.out.println("REGISTER: closing connection");
     }
 
-    public static void parseComando(String riga) {
+    public void parseComando(String riga) {
         String[] linea;
-        if (riga != null && riga.length() > 2) {
 
+        if (riga != null && riga.length() > 2) {
             linea = riga.split(" ");
 
             if (linea.length >= 2) {
-                System.out.println(linea[0] + ", " + linea[1]);
+                System.out.println("> " + linea[0] + ", " + linea[1]);
 
-                if (linea[0].equals("connetti")) {
-                    connettiCS(linea[1]);
-                }else if (linea[0].equals("trovaDato")) {
-                    trovaDato(linea[1]);
-                } else if (linea[0].equals("memorizzaDato")) {
-                    memorizzaDato(linea[1]);
-                } else if (linea[0].equals("disconnetti")) {
-                    disconnettiCS();
+                switch (linea[0]){
+                    case "connetti":
+                        connettiCS(linea[1]);
+                        break;
+                    case  "creaDato":
+                        creaDato(linea[1]);
+                        break;
+                    case  "trovaDato":
+                        trovaDato(linea[1]);
+                        break;
                 }
             }
         }
@@ -72,30 +72,28 @@ class Register_Thread extends Thread {
 
 
     /*******************METODI LOCALI********************************/
-    public synchronized static void memorizzaDato(String nome) {
-        System.out.println("REGISTRA DATO "+nome+" "+ remoteAddr);
-        registro.add(new RegisterData( nome, remoteAddr));
-    }
-
-    private static void connettiCS(String addr) {
+    private void connettiCS(String addr) {
         remoteAddr = addr;
     }
-
-    public synchronized static void disconnettiCS() {
-        System.out.println("RIMUOVENDO DATI CS");
-        connected = false;
+    public synchronized void rimuoviCS(String addr) {
+        registro.removeIf(data -> data.addr.equals(addr));
+    }
+    public synchronized void disconnettiCS() {
+        System.out.println("REGISTER: rimuovendo "+ remoteAddr);
         rimuoviCS(remoteAddr);
     }
 
-    public synchronized static void rimuoviCS(String addr) {
-        registro.removeIf(data -> data.addr.equals(addr));
-    }
 
-    public synchronized static void trovaDato(String nome) {
+    public synchronized void creaDato(String nome) {
+        System.out.println("REGISTRA DATO "+nome+" "+ remoteAddr);
+        registro.add(new RegisterData( nome, remoteAddr));
+    }
+    public synchronized void trovaDato(String nome) {
         for (RegisterData data : registro) {
             if (data.nome.equals(nome)) {
                 System.out.println("TROVATO DATO " + data);
-                out.println(data.addr);
+                //out.println(data.addr);
+                return;
             }
         }
         System.out.println("DATO NON TROVATO " );

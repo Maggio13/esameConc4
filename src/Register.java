@@ -1,14 +1,24 @@
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class Register {
     public static int PORTA = 8080;
-    public static String INDIRIZZO = ":"+PORTA;
+    public static String INDIRIZZO;
+
+    static {
+        try {
+            INDIRIZZO = InetAddress.getByName(null).getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     public static void main(String[] args) throws IOException {
-        System.out.println("REGISTER: starting");
+        System.out.println("REGISTER: starting as " + INDIRIZZO+":"+PORTA);
 
         ServerSocket s = new ServerSocket(PORTA);
 

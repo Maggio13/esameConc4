@@ -11,38 +11,33 @@ public class CS{
     static InetAddress addr;
 
     static CS_Server server   = new CS_Server();
-    static CS_Client registro = new CS_Client(Register.INDIRIZZO);
+    static CS_Client registro = new CS_Client(Register.INDIRIZZO, Register.PORTA);
 
     static ArrayList<CS_Data> dati = new ArrayList<CS_Data>();
 
-
-
+    /***********DEBUG VARIABLES*******************/
+    static int commandDelay = 500;
 
     public static void main(String[] args){
-        server.start();
-        registro.connect();
-        //addr = InetAddress.getByName(null);
-
-        if(server.error != 0 || registro.error != 0){
+        try {
+            registro.connect();
+        }catch (IOException e){
             return;
         }
 
-        registro.sendInfo(server.addr);
+        server.start();
+        registro.sendInfo(server.addr, server.port);
 
         readCommandFile("funz_cs1.txt");
 
 
-
         System.out.println(Arrays.asList(dati));
 
-        //disconnetti();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        registro.close();
+        server.close();
 
         System.out.println("programma terminato");
+        System.exit(0);
     }
 
     private static void readCommandFile(String fileName) {
@@ -64,7 +59,7 @@ public class CS{
             while ((str = buff.readLine()) != null) {
                 parseCommands(str);
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(commandDelay);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -72,7 +67,6 @@ public class CS{
         } catch (IOException e) {
         }
     }
-
     private static void parseCommands(String str) {
         String[] words;
         words = str.split(" ");
@@ -102,9 +96,6 @@ public class CS{
         //download dato;
         creaDato(nome);
     }
-
-
-
 }
 
 class CS_Data {
@@ -113,5 +104,8 @@ class CS_Data {
     CS_Data(String n, String d){
         nome=n;
         data=d;
+    }
+    public String toString(){
+        return nome+" "+data;
     }
 }
